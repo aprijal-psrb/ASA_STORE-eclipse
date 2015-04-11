@@ -15,10 +15,6 @@ gen/
 # Gradle files
 .gradle/
 build/
-<<<<<<< HEAD
-=======
-/*/build/
->>>>>>> 4f7429dd7e31485404ded1e8c65db3f6815ee7b9
 
 # Local configuration file (sdk path, etc)
 local.properties
