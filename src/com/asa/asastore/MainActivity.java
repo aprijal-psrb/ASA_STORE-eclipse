@@ -196,6 +196,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
                 if (success == 1){
                     JSONArray penjual = jsonObject.getJSONArray("penjual");
                     listDataSupplier.clear();
+                    listNamaToko.clear();
                     for(int n = 0; n < penjual.length(); n++){
                         JSONObject c = penjual.getJSONObject(n);
                         String id_penjual = c.getString("id_penjual");
@@ -261,6 +262,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
                 if (success == 1){
                     JSONArray merek = jsonObject.getJSONArray("merek");
                     listDataMerek.clear();
+                    listMerek.clear();
                     for(int n = 0; n < merek.length(); n++){
                         JSONObject c = merek.getJSONObject(n);
                         String id_merek = c.getString("id_merek");
