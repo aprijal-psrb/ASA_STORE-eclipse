@@ -335,7 +335,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
         @Override
         protected void onPostExecute(Integer arg){
             if(arg == 1){
-            	Toast.makeText(getApplicationContext(), "Get Saved Data",Toast.LENGTH_SHORT).show();
+            	Toast.makeText(getApplicationContext(), "Get Save Data",Toast.LENGTH_SHORT).show();
                 try {
 					JSONArray all_barang = new JSONArray(savedData.getString("all_barang", ""));
 					JSONArray penjual = new JSONArray(savedData.getString("penjual", ""));
@@ -446,8 +446,10 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 					e.printStackTrace();
 				}
                 if(TAG == 0) {
-                    adapterHomeBarang = new AdapterBarang(MainActivity.this, R.id.layout_item_home, listDataBarang);
+                	adapterHomeBarang = new AdapterBarang(MainActivity.this, R.id.layout_item_home, listDataBarang);
+                    Home.listViewBarang.setAdapter(adapterHomeBarang);
                     adapterShoppingSupplier = new AdapterShoppingSupplier(MainActivity.this, android.R.layout.simple_list_item_1, listDataSupplier);
+                    Shopping.listViewSupplier.setAdapter(adapterShoppingSupplier);
                     adapterFavoriteCategory = new AdapterFavoriteCategory(MainActivity.this, R.layout.list_item_favorite_category, listDataFavorite);
                     adapterDataMerek = new AdapterMerek(MainActivity.this,android.R.layout.simple_list_item_1,listDataMerek);
                     adapterMerek = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,listMerek);
