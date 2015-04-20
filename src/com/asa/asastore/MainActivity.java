@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.InputFilter.LengthFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,11 +24,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.android.volley.Request.Method;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends FragmentActivity implements ViewPager.OnPageChangeListener,ActionBar.TabListener{
-	public static String URL = "http://192.168.173.1/asa/asastore/";
+	public static String URL = "http://192.168.137.1/asa/asastore/";
     public static JSONParser jsonParser = new JSONParser();
     public static AdapterBarang adapterHomeBarang;
     public static AdapterShoppingSupplier adapterShoppingSupplier;
@@ -54,7 +63,8 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        new GetData().execute(0);
+        //new GetData().execute(0);
+        getData();
         mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager)findViewById(R.id.pager);
         mViewPager.setAdapter(mPagerAdapter);
@@ -79,7 +89,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
         int id = item.getItemId();
         switch (id){
             case R.id.refresh:
-                new GetData().execute(1);
+                //new GetData().execute(1);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -139,6 +149,80 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
         }
     }
 
+    public void getData(){
+    	JsonObjectRequest jsonRequest = new JsonObjectRequest(Method.GET, URL+"get-barang.php", null, new Response.Listener<JSONObject>() {
+    		@Override
+    		public void onResponse(JSONObject jsonObject){
+    			Toast.makeText(getApplicationContext(), "onResponse", Toast.LENGTH_LONG).show();
+    			Log.d("RESPONSE", jsonObject.toString());
+    			try{
+                    int success = jsonObject.getInt("success");
+                    if (success == 1){
+                        JSONArray all_barang = jsonObject.getJSONArray("all_barang");
+                        savedDataEditor.putString("all_barang", all_barang.toString());
+                        savedDataEditor.apply();
+                        listDataBarang.clear();
+                        for(int n = 0; n < all_barang.length(); n++){
+                            JSONObject c = all_barang.getJSONObject(n);
+                            String id_barang = c.getString("id_barang");
+                            String id_user = c.getString("id_user");
+                            String id_merek = c.getString("id_merek");
+                            String id_penjual = c.getString("id_penjual");
+                            String id_gambar = c.getString("id_gambar");
+                            String nama_barang = c.getString("nama_barang");
+                            Log.d("Barang", nama_barang);
+                            String stok_barang = c.getString("stok_barang");
+                            String satuan_barang = c.getString("satuan_barang");
+                            String harga_barang = c.getString("harga_barang");
+                            String tgl_harga_stok_barang = c.getString("tgl_harga_stok_barang");
+                            String kode_barang = c.getString("kode_barang");
+                            String lokasi_barang = c.getString("lokasi_barang");
+                            String kategori_barang = c.getString("kategori_barang");
+                            String deskripsi_barang = c.getString("deskripsi_barang");
+                            String id_favorite = c.getString("id_favorite");
+                            DataBarang dataBarang = new DataBarang();
+                            dataBarang.setId_barang(id_barang);
+                            dataBarang.setId_user(id_user);
+                            dataBarang.setId_merek(id_merek);
+                            dataBarang.setId_penjual(id_penjual);
+                            dataBarang.setId_gambar(id_gambar);
+                            dataBarang.setNama_barang(nama_barang);
+                            dataBarang.setStok_barang(stok_barang);
+                            dataBarang.setSatuan_barang(satuan_barang);
+                            dataBarang.setHarga_barang(harga_barang);
+                            dataBarang.setTgl_harga_stok_barang(tgl_harga_stok_barang);
+                            dataBarang.setKode_barang(kode_barang);
+                            dataBarang.setLokasi_barang(lokasi_barang);
+                            dataBarang.setId_kategori_barang(kategori_barang);
+                            dataBarang.setDeskripsi_barang(deskripsi_barang);
+                            dataBarang.setId_favorite(id_favorite);
+                            listDataBarang.add(dataBarang);
+                            adapterHomeBarang = new AdapterBarang(MainActivity.this, R.id.layout_item_home, listDataBarang);
+                            Home.listViewBarang.setAdapter(adapterHomeBarang);
+                            adapterShoppingSupplier = new AdapterShoppingSupplier(MainActivity.this, android.R.layout.simple_list_item_1, listDataSupplier);
+                            Shopping.listViewSupplier.setAdapter(adapterShoppingSupplier);
+                            adapterFavoriteCategory = new AdapterFavoriteCategory(MainActivity.this, R.layout.list_item_favorite_category, listDataFavorite);
+                            adapterDataMerek = new AdapterMerek(MainActivity.this,android.R.layout.simple_list_item_1,listDataMerek);
+                            adapterMerek = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,listMerek);
+                            adapterNamaToko = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,listNamaToko);
+                            adapterNamaKategori = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,listNamaKategori);
+                        }
+                    }
+                }catch (JSONException e){
+                    e.printStackTrace();
+                }
+    		}
+		}, new Response.ErrorListener() {
+
+			@Override
+			public void onErrorResponse(VolleyError arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+    	AppController.getInstance().addToRequestQueue(jsonRequest, "getBarang");
+    }
+    /*
     public class GetData extends AsyncTask<Integer,Integer,Integer>{
         private int TAG;
         @Override
@@ -480,5 +564,6 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
             }
         }
     }
+    */
 }
 
