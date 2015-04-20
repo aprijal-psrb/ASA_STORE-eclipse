@@ -150,11 +150,10 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
     }
 
     public void getData(){
-    	JsonObjectRequest jsonRequest = new JsonObjectRequest(Method.GET, URL+"get-barang.php", null, new Response.Listener<JSONObject>() {
+    	JsonObjectRequest jsonRequest = new JsonObjectRequest(Method.GET, URL+"get-all_data.php", null, new Response.Listener<JSONObject>() {
     		@Override
     		public void onResponse(JSONObject jsonObject){
-    			Toast.makeText(getApplicationContext(), "onResponse", Toast.LENGTH_LONG).show();
-    			Log.d("RESPONSE", jsonObject.toString());
+    			Log.d("jsonObject", jsonObject.toString());
     			try{
                     int success = jsonObject.getInt("success");
                     if (success == 1){
@@ -170,7 +169,6 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
                             String id_penjual = c.getString("id_penjual");
                             String id_gambar = c.getString("id_gambar");
                             String nama_barang = c.getString("nama_barang");
-                            Log.d("Barang", nama_barang);
                             String stok_barang = c.getString("stok_barang");
                             String satuan_barang = c.getString("satuan_barang");
                             String harga_barang = c.getString("harga_barang");
@@ -197,20 +195,100 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
                             dataBarang.setDeskripsi_barang(deskripsi_barang);
                             dataBarang.setId_favorite(id_favorite);
                             listDataBarang.add(dataBarang);
-                            adapterHomeBarang = new AdapterBarang(MainActivity.this, R.id.layout_item_home, listDataBarang);
-                            Home.listViewBarang.setAdapter(adapterHomeBarang);
-                            adapterShoppingSupplier = new AdapterShoppingSupplier(MainActivity.this, android.R.layout.simple_list_item_1, listDataSupplier);
-                            Shopping.listViewSupplier.setAdapter(adapterShoppingSupplier);
-                            adapterFavoriteCategory = new AdapterFavoriteCategory(MainActivity.this, R.layout.list_item_favorite_category, listDataFavorite);
-                            adapterDataMerek = new AdapterMerek(MainActivity.this,android.R.layout.simple_list_item_1,listDataMerek);
-                            adapterMerek = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,listMerek);
-                            adapterNamaToko = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,listNamaToko);
-                            adapterNamaKategori = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,listNamaKategori);
+                        }
+                        
+                        JSONArray penjual = jsonObject.getJSONArray("penjual");
+                        savedDataEditor.putString("penjual", penjual.toString());
+                        savedDataEditor.apply();
+                        listDataSupplier.clear();
+                        listNamaToko.clear();
+                        for(int n = 0; n < penjual.length(); n++){
+                            JSONObject c = penjual.getJSONObject(n);
+                            String id_penjual = c.getString("id_penjual");
+                            String nama_penjual = c.getString("nama_penjual");
+                            String nama_toko = c.getString("nama_toko");
+                            String alamat_toko = c.getString("alamat_toko");
+                            String geolocation = c.getString("geolocation");
+                            String kontak_toko = c.getString("kontak_toko");
+                            String email_toko = c.getString("email_toko");
+                            DataSupplier dataSupplier = new DataSupplier();
+                            dataSupplier.setId_penjual(id_penjual);
+                            dataSupplier.setNama_penjual(nama_penjual);
+                            dataSupplier.setNama_toko(nama_toko);
+                            dataSupplier.setAlamat_toko(alamat_toko);
+                            dataSupplier.setGeolocation(geolocation);
+                            dataSupplier.setKontak_toko(kontak_toko);
+                            dataSupplier.setEmail_toko(email_toko);
+                            listDataSupplier.add(dataSupplier);
+                            listNamaToko.add(nama_toko);
+                        }
+                        
+                        JSONArray favorite = jsonObject.getJSONArray("favorite");
+                        savedDataEditor.putString("favorite", favorite.toString());
+                        savedDataEditor.apply();
+                        listDataFavorite.clear();
+                        for(int n = 0; n < favorite.length(); n++){
+                            JSONObject c = favorite.getJSONObject(n);
+                            String id_favorite = c.getString("id_favorite");
+                            String warna_favorite = c.getString("warna_favorite");
+                            String nama_favorite = c.getString("nama_favorite");
+                            String deskripsi = c.getString("deskripsi");
+                            DataFavorite dataFavorite = new DataFavorite();
+                            dataFavorite.setId_favorite(id_favorite);
+                            dataFavorite.setWarna_favorite(warna_favorite);
+                            dataFavorite.setNama_favorite(nama_favorite);
+                            dataFavorite.setDeskripsi(deskripsi);
+                            listDataFavorite.add(dataFavorite);
+                        }
+                        
+                        JSONArray merek = jsonObject.getJSONArray("merek");
+                        savedDataEditor.putString("merek", merek.toString());
+                        savedDataEditor.apply();
+                        listDataMerek.clear();
+                        listMerek.clear();
+                        for(int n = 0; n < merek.length(); n++){
+                            JSONObject c = merek.getJSONObject(n);
+                            String id_merek = c.getString("id_merek");
+                            String nama_merek = c.getString("nama_merek");
+                            String logo_merek = c.getString("logo_merek");
+                            String deskripsi_merek = c.getString("deskripsi_merek");
+                            DataMerek dataMerek = new DataMerek();
+                            dataMerek.setId_merek(id_merek);
+                            dataMerek.setNama_merek(nama_merek);
+                            dataMerek.setLogo_merek(logo_merek);
+                            dataMerek.setDeskripsi_merek(deskripsi_merek);
+                            listDataMerek.add(dataMerek);
+                            listMerek.add(nama_merek);
+                        }
+                        
+                        JSONArray kategori = jsonObject.getJSONArray("kategori");
+                        savedDataEditor.putString("kategori", kategori.toString());
+                        savedDataEditor.apply();
+                        listDataKategori.clear();
+                        listNamaKategori.clear();
+                        for(int n = 0; n < kategori.length(); n++){
+                            JSONObject c = kategori.getJSONObject(n);
+                            String id = c.getString("id");
+                            String nama_kategori = c.getString("nama_kategori");
+                            DataKategori dataKategori = new DataKategori();
+                            dataKategori.setId_Kategori(id);
+                            dataKategori.setNama_Kategori(nama_kategori);
+                            listDataKategori.add(dataKategori);
+                            listNamaKategori.add(nama_kategori);
                         }
                     }
                 }catch (JSONException e){
                     e.printStackTrace();
                 }
+                adapterHomeBarang = new AdapterBarang(MainActivity.this, R.id.layout_item_home, listDataBarang);
+                Home.listViewBarang.setAdapter(adapterHomeBarang);
+                adapterShoppingSupplier = new AdapterShoppingSupplier(MainActivity.this, android.R.layout.simple_list_item_1, listDataSupplier);
+                Shopping.listViewSupplier.setAdapter(adapterShoppingSupplier);
+                adapterFavoriteCategory = new AdapterFavoriteCategory(MainActivity.this, R.layout.list_item_favorite_category, listDataFavorite);
+                adapterDataMerek = new AdapterMerek(MainActivity.this,android.R.layout.simple_list_item_1,listDataMerek);
+                adapterMerek = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,listMerek);
+                adapterNamaToko = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,listNamaToko);
+                adapterNamaKategori = new ArrayAdapter<>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item,listNamaKategori);
     		}
 		}, new Response.ErrorListener() {
 
